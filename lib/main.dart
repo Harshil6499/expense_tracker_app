@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:expense_tracker/ViewModels/LogIn_ViewModel.dart';
-import 'package:expense_tracker/Views/Access/Login_Screen.dart';
-import 'package:expense_tracker/Views/Splash Screen/SplashScreen.dart';
+import 'package:expense_tracker/Views/Access/LogIn_Screen.dart';
+import 'Views/OnBording Screen/OnBording_Screen.dart';
+
 
 void main() {
   runApp(const MyApp());

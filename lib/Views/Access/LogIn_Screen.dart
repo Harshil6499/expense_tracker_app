@@ -1,9 +1,9 @@
+import 'package:expense_tracker/Assets/App_Color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:expense_tracker/ViewModels/LogIn_ViewModel.dart';
 import 'package:expense_tracker/Views/Access/SignUp_Screen.dart';
 import 'package:expense_tracker/Views/DashBoard_Screen.dart';
-import 'package:expense_tracker/assets/AppColors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

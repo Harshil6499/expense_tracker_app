@@ -1,8 +1,8 @@
-import 'package:expense_tracker/Views/Access/Login_Screen.dart';
+import 'package:expense_tracker/Assets/App_Color.dart';
+import 'package:expense_tracker/Views/Access/LogIn_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:expense_tracker/assets/AppColors.dart';
 
 
 class OnBordingScreen extends StatefulWidget {
@@ -30,7 +30,7 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
             },
             children: [
               buildPage(
-                lottie: "lib/assets/lottie/SplashScreen.json",
+                lottie: "lib/Assets/Lottie/SplashScreen.json",
                 title: "Track Expenses",
                 subtitle: "Easily track your daily expenses",
               ),

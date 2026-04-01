@@ -1,40 +1,35 @@
-class ExpenseModel{
 
-  final String expenseId;
+class IncomeModel{
+  final String incomeId;
   final String accountId;
   final String userId;
   final String category;
   final String amount;
   final String note;
-  final String expenseDate;
-  final String userName;
+  final String incomeDate;
   final String accountName;
-  //final String role;
 
-  ExpenseModel({
+  IncomeModel({
 
-    required this.expenseId,
+    required this.incomeId,
     required this.accountId,
     required this.userId,
     required this.category,
     required this.amount,
     required this.note,
-    required this.expenseDate,
-    required this.userName,
+    required this.incomeDate,
     required this.accountName,
-    //required this.role,
   });
 
-  factory ExpenseModel.fromJson(Map<String, dynamic> json){
-    return ExpenseModel(
-      expenseId: json['expense_id'] ?? '',
+  factory IncomeModel.fromJson(Map<String, dynamic>json){
+    return IncomeModel(
+      incomeId: json['income_id'] ?? '',
       accountId: json['account_id'] ?? '',
       userId: json['user_id'] ?? '',
       category: json['category'] ?? '',
       amount: json['amount'] ?? '',
       note: json['note'] ?? '',
-      expenseDate: json['expense_date'] ?? '',
-      userName: json['user_name'] ?? '',
+      incomeDate: json['income_date'] ?? '',
       accountName: json['account_name'] ?? '',
     );
   }

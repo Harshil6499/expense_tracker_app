@@ -26,8 +26,8 @@ class LoginViewModel extends ChangeNotifier {
     _setError(null);
 
     try {
-      final response = await http.post(
-        Uri.parse(ApiConstants.Sign_In),
+      final response = await http.post(Uri.parse(ApiConstants.Sign_In),
+
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "email": email,
@@ -44,7 +44,7 @@ class LoginViewModel extends ChangeNotifier {
         await prefs.setBool("isLoggedIn", true);
 
 
-        ///Save Data for a DashBoard Screen 1)Name & 2)User_ID
+        ///Save Data for a DashBoard Screen (Name & User_ID)
         await prefs.setString("userName", data["data"]["name"]);
         await prefs.setString("userId", data["data"]["user_id"]);
 

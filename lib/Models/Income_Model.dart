@@ -21,6 +21,7 @@ class IncomeModel{
     required this.accountName,
   });
 
+  ///Convert Json to Object GET
   factory IncomeModel.fromJson(Map<String, dynamic>json){
     return IncomeModel(
       incomeId: json['income_id'] ?? '',

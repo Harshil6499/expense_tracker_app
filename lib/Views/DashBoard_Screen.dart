@@ -2,6 +2,8 @@ import 'package:expense_tracker/Assets/App_Color.dart';
 import 'package:expense_tracker/ViewModels/Expense_ViewModel.dart';
 import 'package:expense_tracker/ViewModels/Income_ViewModel.dart';
 import 'package:expense_tracker/Views/Access/LogIn_Screen.dart';
+import 'package:expense_tracker/Views/Accounts/Accounts_Screen.dart';
+import 'package:expense_tracker/Views/add_expense_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +34,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String userName = "";
   String userId = "";
 
+
   @override
   void initState() {
     super.initState();
@@ -45,16 +48,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String? storedUserId = prefs.getString("userId");
     String? storedUserName = prefs.getString("userName");
 
+
     setState(() {
       userId = storedUserId ?? "";
       userName = storedUserName ?? "";
     });
 
     if (userId.isNotEmpty) {
-
-      //Account API
-      Provider.of<AccountViewModel>(context, listen: false)
-          .fetchAccountBalance(userId);
+      // //Account API
+      // Provider.of<AccountViewModel>(context, listen: false)
+      //     .fetchAccountBalance(userId);
 
       //Expense API
       Provider.of<ExpenseViewModel>(context, listen: false)
@@ -74,7 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final expenseVM = Provider.of<ExpenseViewModel>(context);
     double totalExpense = expenseVM.expenses.fold(
       0.0,
-          (sum, item) => sum + double.parse(item.amount),
+          (sum, item) => sum + item.amount,
     );
 
     final incomeVM = Provider.of<IncomeViewmodel>(context);
@@ -102,7 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               style: const TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 5),
-            Text("Welcome back, $userName 👋 H"),
+            Text("Welcome back, $userName 👋"),
           ],
         ),
       ),
@@ -112,71 +115,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             children: [
 
-              /// Balance
-              Center(
-                child: accountVM.isLoading
-                    ? const CircularProgressIndicator()
-                    : Text(
-                  "Balance: ₹ ${accountVM.account?.balance ?? "0"}",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.Primary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-
-                  /// Expense
-                  Expanded(
-                    child: expenseVM.isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : Column(
-                      children: [
-                        const Text(
-                          "Expense",
-                          style: TextStyle(fontSize: 13),
-                        ),
-                        Text(
-                          "₹ $totalExpense",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.Expense,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  /// Income
-                  Expanded(
-                    child: incomeVM.isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : Column(
-                      children: [
-                        const Text(
-                          "Income",
-                          style: TextStyle(fontSize: 13),
-                        ),
-                        Text(
-                          "₹ $totalIncome",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.Income,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
+              // /// Balance
+              // Center(
+              //   child: accountVM.isLoading
+              //       ? const CircularProgressIndicator()
+              //       : Text(
+              //     "Balance: ₹ ${accountVM.account?.balance ?? "0"}",
+              //     style: TextStyle(
+              //       fontSize: 20,
+              //       fontWeight: FontWeight.bold,
+              //       color: AppColors.Primary,
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(height: 20),
+              //
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //
+              //     /// Expense
+              //     Expanded(
+              //       child: expenseVM.isLoading
+              //           ? const Center(child: CircularProgressIndicator())
+              //           : Column(
+              //         children: [
+              //           const Text(
+              //             "Expense",
+              //             style: TextStyle(fontSize: 13),
+              //           ),
+              //           Text(
+              //             "₹ $totalExpense",
+              //             style: TextStyle(
+              //               fontSize: 20,
+              //               fontWeight: FontWeight.bold,
+              //               color: AppColors.Expense,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //
+              //     /// Income
+              //     Expanded(
+              //       child: incomeVM.isLoading
+              //           ? const Center(child: CircularProgressIndicator())
+              //           : Column(
+              //         children: [
+              //           const Text(
+              //             "Income",
+              //             style: TextStyle(fontSize: 13),
+              //           ),
+              //           Text(
+              //             "₹ $totalIncome",
+              //             style: TextStyle(
+              //               fontSize: 20,
+              //               fontWeight: FontWeight.bold,
+              //               color: AppColors.Income,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // const SizedBox(height: 30),
 
               /// Logout Button
               ElevatedButton(
@@ -184,17 +187,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
 
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const LoginScreen(),
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen(),
                     ),
                         (route) => false,
                   );
                 },
                 child: const Text("Logout"),
               ),
-              const SizedBox(height: 500),
+              const SizedBox(height: 50),
+
+              ElevatedButton(
+                onPressed: () async {
+
+                  final prefs = await SharedPreferences.getInstance();
+                  String? userId = prefs.getString("userId");
+
+                  if (userId != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AccountsScreen(userId: userId),
+                      ),
+                    );
+                  } else {
+                    print("User ID not found");
+                  }
+                },
+                child: Text("View Accounts"),
+              )
             ],
           ),
         ),

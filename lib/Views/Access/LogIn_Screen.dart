@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   children: [
 
-                    //Email
+                    ///Email
                     _inputField(
                       controller: _emailController,
                       label: 'Email Address',
@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     SizedBox(height: 16),
 
-                    //Password
+                    ///Password
                     _inputField(
                       controller: _passwordController,
                       label: 'Password',

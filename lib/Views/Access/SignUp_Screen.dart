@@ -365,7 +365,7 @@ class _SignupScreenState extends State<SignupScreen> {
         prefixText: prefixText,
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: AppColors.BackGround,
+        fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,

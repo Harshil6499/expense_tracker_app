@@ -7,7 +7,7 @@ class LoginModel {
     required this.password,
   });
 
-  ///Convert Data to Json
+  ///Convert Object to Json POST
   Map<String, dynamic> toJson() {
     return {
       "email": email,

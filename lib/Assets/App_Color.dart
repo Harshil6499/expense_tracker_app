@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Prevent instantiation
   AppColors._();
 
   // primary Color
@@ -9,6 +8,9 @@ class AppColors {
 
   // Button Color
   static const Button = Color(0xFF2E7D32);
+
+  static const AddIncome = Color(0xFF2E7D32);
+  static const AddExpense = Color(0xFFE02E2E);
 
   // BackGround Color
   static const BackGround = Color(0xFFF7F8FC);
@@ -25,6 +27,4 @@ class AppColors {
 
   //Income Amount
   static const Income = Color(0xFF4CAF50);
-
-
 }

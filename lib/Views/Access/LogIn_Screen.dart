@@ -1,9 +1,13 @@
-import 'package:expense_tracker/Assets/App_Color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:expense_tracker/ViewModels/LogIn_ViewModel.dart';
+
 import 'package:expense_tracker/Views/Access/SignUp_Screen.dart';
 import 'package:expense_tracker/Views/DashBoard_Screen.dart';
+
+import 'package:expense_tracker/Assets/App_Color.dart';
+import 'package:expense_tracker/Widgets/Custom_TextField.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -90,13 +94,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
 
                     ///Email
-                    _inputField(
+                    CustomTextField(
                       controller: _emailController,
                       label: 'Email Address',
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
+                        if (value == null || value
+                            .trim()
+                            .isEmpty) {
                           return "Email is required";
                         }
                         return null;
@@ -105,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(height: 16),
 
                     ///Password
-                    _inputField(
+                    CustomTextField(
                       controller: _passwordController,
                       label: 'Password',
                       icon: Icons.lock_outline,
@@ -164,13 +170,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>  DashboardScreen(),
+                          builder: (_) => DashboardScreen(),
                         ),
                       );
                     }
                   },
                   child: loginVM.isLoading
-                      ?  CircularProgressIndicator(
+                      ? CircularProgressIndicator(
                     color: AppColors.BackGround,
                   )
                       : Text("Login"),
@@ -218,34 +224,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Reusable Input Field
-  Widget _inputField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
         ),
       ),
     );

@@ -1,8 +1,12 @@
-import 'package:expense_tracker/Assets/App_Color.dart';
-import 'package:expense_tracker/Views/Access/LogIn_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:expense_tracker/ViewModels/SignUp_ViewModel.dart';
+
+import 'package:expense_tracker/Views/Access/LogIn_Screen.dart';
+
+import 'package:expense_tracker/Assets/App_Color.dart';
+import 'package:expense_tracker/Widgets/Custom_TextField.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -88,7 +92,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     children: [
 
                       //Name
-                      _inputField(
+                      CustomTextField(
                         controller: _nameController,
                         label: 'Name',
                         icon: Icons.account_circle_outlined,
@@ -106,7 +110,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: 16),
 
                       //Surname
-                      _inputField(
+                      CustomTextField(
                         controller: _surnameController,
                         label: 'surname',
                         icon: Icons.account_circle_outlined,
@@ -124,7 +128,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: 16),
 
                       //Phone Number
-                      _inputField(
+                      CustomTextField(
                         controller: _phonenumberController,
                         label: 'Phone Number',
                         icon: Icons.phone_outlined,
@@ -147,7 +151,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: 16),
 
                       //Email
-                      _inputField(
+                      CustomTextField(
                         controller: _emailController,
                         label: 'Email Address',
                         icon: Icons.email_outlined,
@@ -170,7 +174,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: 16),
 
                       // Password
-                      _inputField(
+                      CustomTextField(
                         controller: _passwordController,
                         label: 'Password',
                         icon: Icons.lock_outline,
@@ -200,7 +204,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: 16),
 
                       // Confirm Password
-                      _inputField(
+                      CustomTextField(
                         controller: _confirmpasswordController,
                         label: 'Confirm Password',
                         icon: Icons.lock_outline,
@@ -231,13 +235,12 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: 16),
 
                       //Date of Birth
-                      _inputField(
+                      CustomTextField(
                         controller: _dobController,
                         label: 'Date of Birth',
                         icon: Icons.calendar_today_outlined,
                         readOnly: true,
                         onTap: () async {
-
                           // Remove keyboard focus
                           FocusScope.of(context).unfocus();
 
@@ -251,7 +254,11 @@ class _SignupScreenState extends State<SignupScreen> {
                           if (pickedDate != null) {
                             setState(() {
                               _dobController.text =
-                              "${pickedDate.year}-${pickedDate.month.toString().padLeft(2,'0')}-${pickedDate.day.toString().padLeft(2,'0')}";
+                              "${pickedDate.year}-${pickedDate.month
+                                  .toString()
+                                  .padLeft(2, '0')}-${pickedDate.day
+                                  .toString()
+                                  .padLeft(2, '0')}";
                             });
                           }
                         },
@@ -304,7 +311,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         email: _emailController.text.trim(),
                         phone: "+91${_phonenumberController.text.trim()}",
                         password: _passwordController.text.trim(),
-                        confirm_password: _confirmpasswordController.text.trim(),
+                        confirm_password: _confirmpasswordController.text
+                            .trim(),
                         dob: _dobController.text.trim(),
                       );
                       if (success) {
@@ -323,7 +331,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       }
                     },
                     child: signupVM.isLoading
-                        ?  CircularProgressIndicator(
+                        ? CircularProgressIndicator(
                       color: AppColors.BackGround,
                     )
                         : const Text("Register"),
@@ -335,41 +343,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ],
             ),
           )
-      ),
-    );
-  }
-
-
-  Widget _inputField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-    String? prefixText,
-    Widget? suffixIcon,
-    VoidCallback? onTap,
-    bool readOnly = false,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
-      readOnly: readOnly,
-      onTap: onTap,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        prefixText: prefixText,
-        suffixIcon: suffixIcon,
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
       ),
     );
   }

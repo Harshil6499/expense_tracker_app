@@ -1,11 +1,18 @@
-import 'package:expense_tracker/Assets/App_Color.dart';
-import 'package:expense_tracker/ViewModels/Account_ViewModel.dart';
-import 'package:expense_tracker/Views/Accounts/Account_Detail_Screen.dart';
-import 'package:expense_tracker/Views/add_expense_screen.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:expense_tracker/ViewModels/Account_ViewModel.dart';
+import 'package:expense_tracker/ViewModels/Expense_ViewModel.dart';
+import 'package:expense_tracker/ViewModels/Income_ViewModel.dart';
+
+import 'package:expense_tracker/Views/Accounts/Account_Detail_Screen.dart';
+
+import 'package:expense_tracker/Views/Dialogs/Add_Account_Dialog.dart';
+import 'package:expense_tracker/Views/Dialogs/Add_Transaction_Dialog.dart';
+
+import 'package:expense_tracker/Assets/App_Color.dart';
+import 'package:expense_tracker/Widgets/Glass_Dialog.dart';
 
 
 class AccountsScreen extends StatefulWidget {
@@ -140,52 +147,83 @@ class _AccountsScreenState extends State<AccountsScreen> {
                           /// Add Expense & Add Income Buttons
                           Row(
                             children: [
+
                               /// Income Button
                               Expanded(
                                 child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.AddIncome,
-                                  foregroundColor: AppColors.BackGround,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => AddExpenseScreen(
-                                        accountId: account.accountId,
-                                      ),
+
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.AddIncome,
+                                    foregroundColor: AppColors.BackGround,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                  );
-                                },
-                                child: const Text("Add Income"),
+                                  ),
+
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      barrierColor: Colors.black.withOpacity(0.3),
+                                      builder: (_) => GlassDialog(
+                                        child: AddTransactionDialog(
+                                          title: "Add Income",
+                                          onSubmit: (amount, note) async {
+                                            final incomeVM = Provider.of<IncomeViewmodel>(
+                                              context,
+                                              listen: false,
+                                            );
+                                            await incomeVM.addIncome(
+                                              amount,
+                                              "General",
+                                              note,
+                                              account.accountId.toString(),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text("Add Income"),
                                 ),
                               ),
+
                               const SizedBox(width: 12),
 
                               /// Expense Button
                               Expanded(
                                 child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.AddExpense,
-                                  foregroundColor: AppColors.BackGround,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => AddExpenseScreen(
-                                        accountId: account.accountId,
-                                      ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.AddExpense,
+                                    foregroundColor: AppColors.BackGround,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                  );
-                                },
-                                child: const Text("Add Expens"),
+                                  ),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      barrierColor: Colors.black.withValues(alpha: 0.3),
+                                      builder: (_) => GlassDialog(
+                                          child: AddTransactionDialog(
+                                          title: "Add Expense",
+                                          onSubmit: (amount, note) async {
+                                            final expenseVM = Provider.of<ExpenseViewModel>(
+                                              context,
+                                              listen: false,
+                                            );
+
+                                            await expenseVM.addExpense(
+                                              amount,
+                                              "General",
+                                              note,
+                                              account.accountId.toString(),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text("Add Expense"),
                                 ),
                               ),
                             ],
@@ -239,148 +277,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
             },
           );
         },
-      ),
-    );
-  }
-}
-
-
- /// Add Account Dialog Box (Funcation)
-class AddAccountDialog extends StatefulWidget {
-  const AddAccountDialog({super.key});
-
-  @override
-  State<AddAccountDialog> createState() => _AddAccountDialogState();
-}
-
-class _AddAccountDialogState extends State<AddAccountDialog> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController balanceController = TextEditingController();
-
-  String? selectedType;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-
-        const Text(
-          "Add Account",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-
-        const SizedBox(height: 15),
-
-        /// Account Name
-        _inputField(
-          controller: nameController,
-          label: 'Account Name',
-        ),
-
-        const SizedBox(height: 10),
-
-        /// Balance
-        _inputField(
-          controller: balanceController,
-          label: 'Initial Balance',
-          keyboardType: TextInputType.number,
-        ),
-
-        const SizedBox(height: 10),
-
-        ///Dropdown
-        DropdownButtonFormField<String>(
-          value: selectedType,
-          hint: const Text("Select Account Type", style: TextStyle(color: Colors.white70),),
-
-          style: const TextStyle(color: Colors.black),
-
-          iconEnabledColor: Colors.white,
-          dropdownColor: Colors.white,
-
-          decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.white.withOpacity(0.2),
-              border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
-          ),
-
-          items: const [
-            DropdownMenuItem(
-              value: "bank",
-              child: Text("Bank", style: TextStyle(color: Colors.black)),
-            ),
-            DropdownMenuItem(
-              value: "cash",
-              child: Text("Cash", style: TextStyle(color: Colors.black)),
-             ),
-             DropdownMenuItem(
-               value: "wallet",
-               child: Text("Wallet", style: TextStyle(color: Colors.black)),
-              ),
-             ],
-
-             onChanged: (value) {
-              setState(() {
-                selectedType = value;
-            });
-         },
-        ),
-
-        const SizedBox(height: 20),
-
-        /// Button
-        ElevatedButton(
-          onPressed: () async {
-
-            final prefs = await SharedPreferences.getInstance();
-
-            String userId = prefs.getString("userId") ?? "";
-
-            final viewModel =
-            Provider.of<AccountViewModel>(context, listen: false);
-
-            await viewModel.addAccount(
-              userId: userId,
-              accountName: nameController.text,
-              balance: balanceController.text,
-              accountType: selectedType ?? "",
-            );
-
-            Navigator.pop(context);
-          },
-          child: const Text("Add"),
-        ),
-      ],
-    );
-  }
-
-  /// Input Field
-  Widget _inputField({
-    required TextEditingController controller,
-    required String label,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70),
-        filled: true,
-        fillColor: Colors.white.withOpacity(0.2),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
       ),
     );
   }

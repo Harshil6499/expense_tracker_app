@@ -1,21 +1,20 @@
 import 'dart:convert';
-import 'package:expense_tracker/Core/Network/Api_Endpoints.dart';
-import 'package:expense_tracker/Models/Expense_Model.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:expense_tracker/Core/Network/Api_Endpoints.dart';
+
+import 'package:expense_tracker/Models/Expense_Model.dart';
+
 
 class ExpenseViewModel extends ChangeNotifier {
 
+  /// Get User ID
   Future<String?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString("userId");
-
-  }
-
-  Future<String?> getAccountId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString("accountId");
   }
 
   bool _isLoading = false;
@@ -37,13 +36,15 @@ class ExpenseViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// View Expense
+  /// View Expenses
   Future<void> fetchExpenses(String userId) async {
-    _isLoading = true;
-    notifyListeners();
     _setLoading(true);
+
     try {
-      final Uri url = Uri.parse("${ApiConstants.View_Expenses}?role=user&user_id=$userId");
+
+      final Uri url = Uri.parse(
+        "${ApiConstants.View_Expenses}?role=user&user_id=$userId",
+      );
 
       final response = await http.get(url);
       final data = jsonDecode(response.body);
@@ -52,43 +53,47 @@ class ExpenseViewModel extends ChangeNotifier {
         _expenses = (data["data"] as List)
             .map((e) => ExpenseModel.fromJson(e))
             .toList();
+
       } else {
         _setError(data["message"]);
       }
+
     } catch (e) {
       print("Error: $e");
+      _setError("Failed to load expenses");
+
+    } finally {
+      _setLoading(false);
     }
-    _isLoading = false;
-    notifyListeners();
-    _setLoading(false);
   }
 
+  /// Add Expense
   Future<bool> addExpense(
       String amount,
       String category,
       String note,
       String accountId,
       ) async {
+
     _setLoading(true);
     _setError(null);
 
     try {
+
       final userId = await getUserId();
-      final accountId = await getAccountId();
-
-
       if (userId == null || userId.isEmpty) {
         _setError("User not logged in");
         return false;
       }
 
-      String formattedDate =
-      DateTime.now().toIso8601String().split("T")[0];
+      String formattedDate = DateTime.now().toIso8601String().split("T")[0];
 
-      ///API Call
-      final response = await http.post(Uri.parse(ApiConstants.Add_Expense),
+      final response = await http.post(
+        Uri.parse(ApiConstants.Add_Expense),
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-        headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "user_id": userId,
           "account_id": accountId,
@@ -96,27 +101,33 @@ class ExpenseViewModel extends ChangeNotifier {
           "category": category,
           "note": note,
           "expense_date": formattedDate,
+
         }),
       );
 
-      /// Debug
-      print("Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
-
+      // Debug
+      print("===============");
+      print("STATUS CODE : ${response.statusCode}");
+      print("RAW RESPONSE : ${response.body}");
+      print("===============");
       final data = jsonDecode(response.body);
 
-      /// Success
-      if (response.statusCode == 200 && data["status"] == "success") {
+
+      if (response.statusCode == 200) {
+        print("Expense Added");
         await fetchExpenses(userId);
         return true;
       } else {
-        _setError(data["message"] ?? "Failed to Add Expense");
+        print("Expense Failed");
+        _setError(data["message"]);
         return false;
       }
+
     } catch (e) {
       print("Error: $e");
       _setError("Server Error. Please try again.");
       return false;
+
     } finally {
       _setLoading(false);
     }

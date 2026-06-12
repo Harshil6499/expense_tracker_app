@@ -1,8 +1,10 @@
 import 'dart:convert';
-import 'package:expense_tracker/Core/Network/Api_Endpoints.dart';
-import 'package:expense_tracker/Models/Account_Model.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+
+import 'package:expense_tracker/Core/Network/Api_Endpoints.dart';
+
+import 'package:expense_tracker/Models/Account_Model.dart';
 
 
 class AccountViewModel extends ChangeNotifier {
@@ -16,9 +18,11 @@ class AccountViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  ///View Accounts
   Future<void> fetchAccounts(String userId) async {
     _isLoading = true;
     notifyListeners();
+
 
     try {
       final Uri url = Uri.parse("${ApiConstants.View_Accounts}?role=user&user_id=$userId");
@@ -40,13 +44,12 @@ class AccountViewModel extends ChangeNotifier {
   }
 
 
+  ///Add Account
   Future<bool> addAccount({
-
     required String userId,
     required String accountName,
     required String accountType,
     required String balance,
-
 
   }) async {
     _isLoading = true;

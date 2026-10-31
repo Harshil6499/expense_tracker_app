@@ -115,8 +115,7 @@ class _AddAccountDialogState extends State<AddAccountDialog> {
             final prefs = await SharedPreferences.getInstance();
             String userId = prefs.getString("userId") ?? "";
 
-            final viewModel =
-            Provider.of<AccountViewModel>(context, listen: false);
+            final viewModel = Provider.of<AccountViewModel>(context, listen: false);
 
             await viewModel.addAccount(
               userId: userId,
@@ -125,7 +124,7 @@ class _AddAccountDialogState extends State<AddAccountDialog> {
               accountType: selectedType ?? "",
             );
 
-            Navigator.pop(context);
+            Navigator.pop(context,true);
           },
           child: const Text("Add"),
         ),

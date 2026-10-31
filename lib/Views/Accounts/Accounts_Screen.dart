@@ -28,8 +28,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      Provider.of<AccountViewModel>(context, listen: false)
+    Future.microtask(() {Provider.of<AccountViewModel>(context, listen: false)
           .fetchAccounts(widget.userId);
     });
   }
@@ -46,6 +45,13 @@ class _AccountsScreenState extends State<AccountsScreen> {
             fontWeight: FontWeight.bold,
             color: AppColors.Title,
           ),
+        ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            size: 20,
+          ),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       backgroundColor: AppColors.BackGround,
@@ -83,7 +89,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                       margin: const EdgeInsets.only(bottom: 16),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.BackGround,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -151,7 +157,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
                               /// Income Button
                               Expanded(
                                 child: ElevatedButton(
-
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.AddIncome,
                                     foregroundColor: AppColors.BackGround,
@@ -159,7 +164,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
-
                                   onPressed: () {
                                     showDialog(
                                       context: context,
@@ -206,6 +210,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                                       builder: (_) => GlassDialog(
                                           child: AddTransactionDialog(
                                           title: "Add Expense",
+
                                           onSubmit: (amount, note) async {
                                             final expenseVM = Provider.of<ExpenseViewModel>(
                                               context,
@@ -246,8 +251,8 @@ class _AccountsScreenState extends State<AccountsScreen> {
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.add, color: Colors.black),
-        onPressed: () {
-          showDialog(
+        onPressed: () async{
+          final result = await showDialog(
             context: context,
             barrierColor: Colors.black.withOpacity(0.3),
             builder: (context) {
@@ -276,6 +281,12 @@ class _AccountsScreenState extends State<AccountsScreen> {
               );
             },
           );
+          if (result == true && mounted) {
+            await Provider.of<AccountViewModel>(
+              context,
+              listen: false,
+            ).fetchAccounts(widget.userId);
+          }
         },
       ),
     );

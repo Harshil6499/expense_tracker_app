@@ -1,7 +1,7 @@
 class ApiConstants {
 
   //Base URL
-  static const Base_URl = "https://www.prakrutitech.xyz/harshil/";
+  static const Base_URl = "https://shivaay.us.cc/budget_app/";
 
   //User API
   static const View_User = "${Base_URl}ViewUsers.php";

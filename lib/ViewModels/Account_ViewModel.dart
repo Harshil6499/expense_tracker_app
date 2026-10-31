@@ -44,6 +44,7 @@ class AccountViewModel extends ChangeNotifier {
   }
 
 
+
   ///Add Account
   Future<bool> addAccount({
     required String userId,
@@ -71,13 +72,15 @@ class AccountViewModel extends ChangeNotifier {
       );
       final data = jsonDecode(response.body);
 
-
-
       if (response.statusCode == 200 && data["status"] == true) {
+        await fetchAccounts(userId);
+
         _isLoading = false;
         notifyListeners();
+
         return true;
-      } else {
+      }
+      else {
         _errorMessage = data["message"] ?? "Something went wrong";
         _isLoading = false;
         notifyListeners();

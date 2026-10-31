@@ -9,8 +9,8 @@ class AppColors {
   // Button Color
   static const Button = Color(0xFF2E7D32);
 
-  static const AddIncome = Color(0xFF2E7D32);
-  static const AddExpense = Color(0xFFE02E2E);
+  static const AddIncome = Color(0xFF16A36A);
+  static const AddExpense = Color(0xFFE65353);
 
   // BackGround Color
   static const BackGround = Color(0xFFF7F8FC);

@@ -28,14 +28,27 @@ class _AccountsScreenState extends State<AccountsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {Provider.of<AccountViewModel>(context, listen: false)
+
+    Future.microtask(() {
+      Provider.of<AccountViewModel>(context, listen: false)
           .fetchAccounts(widget.userId);
+
+      Provider.of<IncomeViewmodel>(context, listen: false)
+          .fetchIncome(widget.userId);
+
+      Provider.of<ExpenseViewModel>(context, listen: false)
+          .fetchExpenses(widget.userId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+
     final viewModel = Provider.of<AccountViewModel>(context);
+
+    final incomeVM = Provider.of<IncomeViewmodel>(context);
+
+    final expenseVM = Provider.of<ExpenseViewModel>(context);
     return Scaffold(
       appBar: AppBar(
         title:  Text(
@@ -43,7 +56,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
           style: TextStyle(
             //fontSize: 23,
             fontWeight: FontWeight.bold,
-            color: AppColors.Title,
+            color: AppColors.primaryText,
           ),
         ),
         leading: IconButton(
@@ -68,6 +81,39 @@ class _AccountsScreenState extends State<AccountsScreen> {
               /// Accounts List
               Column(
                 children: viewModel.accounts.map((account) {
+
+
+                  // Get income for this account
+                  final accountIncome = incomeVM.income
+                      .where((item) => item.accountId == account.accountId)
+                      .toList();
+
+                  // Get expenses for this account
+                  final accountExpenses = expenseVM.expenses
+                      .where((item) => item.accountId == account.accountId)
+                      .toList();
+
+                  // Calculate total income
+                  final totalIncome = accountIncome.fold<double>(
+                    0.0,
+                        (sum, item) =>
+                    sum + (double.tryParse(item.amount.toString()) ?? 0.0),
+                  );
+
+                  // Calculate total expense
+                  final totalExpense = accountExpenses.fold<double>(
+                    0.0,
+                        (sum, item) =>
+                    sum + (double.tryParse(item.amount.toString()) ?? 0.0),
+                  );
+
+                  // Calculate available balance
+                  final openingBalance =
+                      double.tryParse(account.balance) ?? 0.0;
+
+                  final availableBalance =
+                      openingBalance + totalIncome - totalExpense;
+
                   return InkWell(
                     borderRadius: BorderRadius.circular(16),
 
@@ -109,7 +155,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.Title,
+                              color: AppColors.primaryText,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -119,12 +165,12 @@ class _AccountsScreenState extends State<AccountsScreen> {
                             children: [
                               Icon(Icons.category_outlined,
                                   size: 18,
-                                  color: AppColors.SubTitle),
+                                  color: AppColors.secondaryText),
                               const SizedBox(width: 6),
                               Text(
                                 account.accountType,
                                 style: TextStyle(
-                                  color: AppColors.SubTitle,
+                                  color: AppColors.secondaryText,
                                 ),
                               ),
                             ],
@@ -139,11 +185,11 @@ class _AccountsScreenState extends State<AccountsScreen> {
                                   color: AppColors.Primary),
                               const SizedBox(width: 6),
                               Text(
-                                account.balance,
+                                availableBalance.toStringAsFixed(2),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.Primary,
+                                  color: AppColors.Income,
                                 ),
                               ),
                             ],
@@ -158,7 +204,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                               Expanded(
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.AddIncome,
+                                    backgroundColor: AppColors.Income,
                                     foregroundColor: AppColors.BackGround,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -197,7 +243,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                               Expanded(
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.AddExpense,
+                                    backgroundColor: AppColors.Expense,
                                     foregroundColor: AppColors.BackGround,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -209,7 +255,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                                       barrierColor: Colors.black.withValues(alpha: 0.3),
                                       builder: (_) => GlassDialog(
                                           child: AddTransactionDialog(
-                                          title: "Add Expense",
+                                            title: "Add Expense",
 
                                           onSubmit: (amount, note) async {
                                             final expenseVM = Provider.of<ExpenseViewModel>(

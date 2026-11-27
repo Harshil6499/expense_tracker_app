@@ -116,12 +116,12 @@ class _OnBordingScreenState extends State<OnBordingScreen> {
           Text(title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 26, color: AppColors.Title, fontWeight: FontWeight.bold)),
+                  fontSize: 26, color: AppColors.primaryText, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           Text(subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 16, color: AppColors.SubTitle)),
+                  fontSize: 16, color: AppColors.secondaryText)),
         ],
       ),
     );

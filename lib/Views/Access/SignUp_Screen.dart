@@ -69,7 +69,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         'Sign Up',
                         style: TextStyle(
                           fontSize: 28,
-                          color: AppColors.Title,
+                          color: AppColors.primaryText,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -78,7 +78,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         'Smart Spending Starts Here',
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.SubTitle,
+                          color: AppColors.secondaryText,
                         ),
                       ),
                     ],

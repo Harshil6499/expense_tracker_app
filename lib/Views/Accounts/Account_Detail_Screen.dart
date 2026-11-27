@@ -1,12 +1,18 @@
+import 'dart:ffi';
 
+import 'package:expense_tracker/Assets/App_Color.dart';
+import 'package:expense_tracker/Models/Income_Model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:expense_tracker/Models/Income_Model.dart';
 import 'package:expense_tracker/Models/Expense_Model.dart';
 
 import 'package:expense_tracker/ViewModels/Expense_ViewModel.dart';
 import 'package:expense_tracker/ViewModels/Income_ViewModel.dart';
+
+import 'package:expense_tracker/Widgets/Glass_Dialog.dart';
+import 'package:expense_tracker/Views/Dialogs/Add_Transaction_Dialog.dart';
+
 
 
 class AccountDetailsScreen extends StatefulWidget {
@@ -14,6 +20,7 @@ class AccountDetailsScreen extends StatefulWidget {
   final String accountName;
   final String accountType;
   final String balance;
+
 
   const AccountDetailsScreen({
     super.key,
@@ -30,12 +37,7 @@ class AccountDetailsScreen extends StatefulWidget {
 
 class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
 
-  // Colors
-  static const Color backgroundColor = Color(0xFFF7F8FC);
-  static const Color primaryText = Color(0xFF202633);
-  static const Color secondaryText = Color(0xFF777F8E);
-  static const Color incomeColor = Color(0xFF16A36A);
-  static const Color expenseColor = Color(0xFFE65353);
+
   static const Color borderColor = Color(0xFFECEEF2);
 
   bool _isInitialLoading = true;
@@ -52,7 +54,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
 
   // Fetch Income and Expenses
   Future<void> _loadData() async {
-
     if (!mounted) return;
 
     setState(() {
@@ -166,12 +167,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
 
     // Sort Newest Transactions First
     transactions.sort((a, b) {
-
-      final dateA = DateTime.tryParse(a.date) ??
-          DateTime(1970);
-
-      final dateB = DateTime.tryParse(b.date) ??
-          DateTime(1970);
+      final dateA = DateTime.tryParse(a.date) ?? DateTime(1970);
+      final dateB = DateTime.tryParse(b.date) ?? DateTime(1970);
 
       return dateB.compareTo(dateA);
     });
@@ -198,176 +195,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         "${parsedDate.year}";
   }
 
-  // Add Income or Expense Dialog
-  Future<void> _showTransactionDialog({
-    required bool isIncome,
-  }) async {
-
-    final amountController = TextEditingController();
-    final noteController = TextEditingController();
-
-    final input = await showDialog<TransactionInput>(
-      context: context,
-      builder: (dialogContext) {
-
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-
-          title: Text(
-            isIncome ? "Add Income" : "Add Expense",
-            style: const TextStyle(
-              color: primaryText,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              TextField(
-                controller: amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  labelText: "Amount",
-                  prefixText: "₹ ",
-                  filled: true,
-                  fillColor: backgroundColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              TextField(
-                controller: noteController,
-                decoration: InputDecoration(
-                  labelText: "Note",
-                  filled: true,
-                  fillColor: backgroundColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          actions: [
-
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: const Text("Cancel"),
-            ),
-
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isIncome
-                    ? incomeColor
-                    : expenseColor,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () {
-
-                final amount = amountController.text.trim();
-                final note = noteController.text.trim();
-
-                if (amount.isEmpty ||
-                    (double.tryParse(amount) ?? 0) <= 0) {
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Please enter a valid amount"),
-                    ),
-                  );
-
-                  return;
-                }
-
-                Navigator.pop(
-                  dialogContext,
-                  TransactionInput(
-                    amount: amount,
-                    note: note,
-                  ),
-                );
-              },
-              child: const Text("Save"),
-            ),
-          ],
-        );
-      },
-    );
-
-    amountController.dispose();
-    noteController.dispose();
-
-    if (input == null || !mounted) return;
-
-    bool success = false;
-
-    if (isIncome) {
-
-      final incomeVM = Provider.of<IncomeViewmodel>(
-        context,
-        listen: false,
-      );
-
-      success = await incomeVM.addIncome(
-        input.amount,
-        "General",
-        input.note,
-        widget.accountId,
-      );
-
-    } else {
-
-      final expenseVM = Provider.of<ExpenseViewModel>(
-        context,
-        listen: false,
-      );
-
-      success = await expenseVM.addExpense(
-        input.amount,
-        "General",
-        input.note,
-        widget.accountId,
-      );
-    }
-
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? "${isIncome ? 'Income' : 'Expense'} added successfully"
-              : "Failed to add ${isIncome ? 'income' : 'expense'}",
-        ),
-        backgroundColor: success ? incomeColor : expenseColor,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -383,9 +210,16 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         .where((item) => item.accountId == widget.accountId)
         .toList();
 
+
     // Calculate totals
     final totalIncome = _calculateTotalIncome(accountIncome);
     final totalExpense = _calculateTotalExpense(accountExpenses);
+
+    // Calculate Available Balance
+    final openingBalance = double.tryParse(widget.balance) ?? 0.0;
+
+    final availableBalance =
+        openingBalance + totalIncome - totalExpense;
 
     // Combined transactions
     final transactions = _getRecentTransactions(
@@ -394,17 +228,17 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     );
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.BackGround,
 
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: AppColors.BackGround,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
 
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
-            color: primaryText,
+            color: AppColors.primaryText,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
@@ -413,7 +247,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         title: Text(
           widget.accountName,
           style: const TextStyle(
-            color: primaryText,
+            color: AppColors.primaryText,
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
@@ -434,7 +268,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             Text(
               _loadError!,
               style: const TextStyle(
-                color: secondaryText,
+                color: AppColors.secondaryText,
               ),
             ),
             const SizedBox(height: 12),
@@ -458,7 +292,9 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             children: [
 
               // Account Information Card
-              _buildAccountCard(),
+              _buildAccountCard(
+                availableBalance: availableBalance,
+              ),
 
               const SizedBox(height: 25),
 
@@ -468,7 +304,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: primaryText,
+                  color: AppColors.primaryText,
                 ),
               ),
 
@@ -476,13 +312,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
 
               Row(
                 children: [
-
                   Expanded(
                     child: _buildSummaryCard(
                       title: 'Total Income',
                       amount: '₹${_formatAmount(totalIncome)}',
                       icon: Icons.trending_up_rounded,
-                      color: incomeColor,
+                      color: AppColors.Income,
                       lightColor: const Color(0xFFE9F8F0),
                     ),
                   ),
@@ -494,7 +329,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       title: 'Total Expense',
                       amount: '₹${_formatAmount(totalExpense)}',
                       icon: Icons.trending_down_rounded,
-                      color: expenseColor,
+                      color: AppColors.Income,
                       lightColor: const Color(0xFFFFF0F0),
                     ),
                   ),
@@ -514,7 +349,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: primaryText,
+                      color: AppColors.primaryText,
                     ),
                   ),
 
@@ -522,7 +357,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                     '${transactions.length} transactions',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: secondaryText,
+                      color: AppColors.secondaryText,
                     ),
                   ),
                 ],
@@ -561,13 +396,13 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                         Icon(
                           Icons.receipt_long_outlined,
                           size: 40,
-                          color: secondaryText,
+                          color: AppColors.secondaryText,
                         ),
                         SizedBox(height: 10),
                         Text(
                           "No transactions found",
                           style: TextStyle(
-                            color: secondaryText,
+                            color: AppColors.secondaryText,
                             fontSize: 14,
                           ),
                         ),
@@ -593,35 +428,85 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               Row(
                 children: [
 
+                  /// Income Button
                   Expanded(
-                    child: _buildActionButton(
-                      title: 'Add Income',
-                      icon: Icons.add_circle_outline,
-                      color: incomeColor,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.Income,
+                        foregroundColor: AppColors.BackGround,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                       onPressed: () {
-                        _showTransactionDialog(
-                          isIncome: true,
+                        showDialog(
+                          context: context,
+                          barrierColor: Colors.black.withOpacity(0.3),
+                          builder: (_) => GlassDialog(
+                            child: AddTransactionDialog(
+                              title: "Add Income",
+                              onSubmit: (amount, note) async {
+                                final incomeVM = Provider.of<IncomeViewmodel>(
+                                  context,
+                                  listen: false,
+                                );
+                                await incomeVM.addIncome(
+                                  amount,
+                                  "General",
+                                  note,
+                                  widget.accountId,
+                                );
+                              },
+                            ),
+                          ),
                         );
                       },
+                      child: const Text("Add Income"),
                     ),
                   ),
 
                   const SizedBox(width: 12),
 
+                  /// Expense Button
                   Expanded(
-                    child: _buildActionButton(
-                      title: 'Add Expense',
-                      icon: Icons.remove_circle_outline,
-                      color: expenseColor,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.Expense,
+                        foregroundColor: AppColors.BackGround,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                       onPressed: () {
-                        _showTransactionDialog(
-                          isIncome: false,
+                        showDialog(
+                          context: context,
+                          barrierColor: Colors.black.withValues(alpha: 0.3),
+                          builder: (_) => GlassDialog(
+                            child: AddTransactionDialog(
+                              title: "Add Expense",
+
+                              onSubmit: (amount, note) async {
+                                final expenseVM = Provider.of<ExpenseViewModel>(
+                                  context,
+                                  listen: false,
+                                );
+
+                                await expenseVM.addExpense(
+                                  amount,
+                                  "General",
+                                  note,
+                                  widget.accountId,
+                                );
+                              },
+                            ),
+                          ),
                         );
                       },
+                      child: const Text("Add Expense"),
                     ),
                   ),
                 ],
-              ),
+              )
             ],
           ),
         ),
@@ -630,8 +515,9 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   }
 
   // Account Information Card
-  Widget _buildAccountCard() {
-
+  Widget _buildAccountCard({
+    required double availableBalance,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -684,7 +570,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: primaryText,
+                        color:AppColors.primaryText,
                       ),
                     ),
 
@@ -694,7 +580,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       widget.accountType,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: secondaryText,
+                        color: AppColors.secondaryText,
                       ),
                     ),
                   ],
@@ -703,18 +589,17 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
 
               const Icon(
                 Icons.verified_outlined,
-                color: incomeColor,
+                color: AppColors.Income,
                 size: 22,
               ),
             ],
           ),
 
           const SizedBox(height: 25),
-
           const Text(
             'Available Balance',
             style: TextStyle(
-              color: secondaryText,
+              color: AppColors.secondaryText,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -723,11 +608,11 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           const SizedBox(height: 8),
 
           Text(
-            '₹ ${widget.balance}',
+            '₹ ${_formatAmount(availableBalance)}',
             style: const TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.w800,
-              color: primaryText,
+              color: AppColors.primaryText,
               letterSpacing: -0.5,
             ),
           ),
@@ -748,7 +633,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               const Text(
                 'Account ID',
                 style: TextStyle(
-                  color: secondaryText,
+                  color: AppColors.secondaryText,
                   fontSize: 13,
                 ),
               ),
@@ -756,7 +641,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               Text(
                 widget.accountId,
                 style: const TextStyle(
-                  color: primaryText,
+                  color: AppColors.primaryText,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
@@ -801,7 +686,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             title,
             style: const TextStyle(
               fontSize: 12,
-              color: secondaryText,
+              color: AppColors.secondaryText,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -834,8 +719,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     final bool isIncome = transaction.isIncome;
 
     final Color color = isIncome
-        ? incomeColor
-        : expenseColor;
+        ? AppColors.Income : AppColors.Income;
 
     return Column(
       children: [
@@ -880,7 +764,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: primaryText,
+                        color: AppColors.primaryText,
                       ),
                     ),
 
@@ -890,7 +774,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       '${transaction.category} · ${_formatDate(transaction.date)}',
                       style: const TextStyle(
                         fontSize: 11,
-                        color: secondaryText,
+                        color: AppColors.secondaryText,
                       ),
                     ),
                   ],
@@ -918,49 +802,10 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       ],
     );
   }
-
-  // Add Income and Expense Buttons
-  Widget _buildActionButton({
-    required String title,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onPressed,
-  }) {
-
-    return SizedBox(
-      height: 52,
-
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-
-        icon: Icon(
-          icon,
-          size: 19,
-        ),
-
-        label: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: Colors.white,
-          elevation: 0,
-
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
-// Combined Transaction Model for UI
+
+//Combined Transaction Model for UI
 class AccountTransaction {
 
   final String title;
@@ -978,14 +823,3 @@ class AccountTransaction {
   });
 }
 
-// Dialog Input Model
-class TransactionInput {
-
-  final String amount;
-  final String note;
-
-  TransactionInput({
-    required this.amount,
-    required this.note,
-  });
-}

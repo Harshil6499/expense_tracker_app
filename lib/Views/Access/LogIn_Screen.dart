@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Welcome Back',
                       style: TextStyle(
                         fontSize: 28,
-                        color: AppColors.Title,
+                        color: AppColors.primaryText,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Login to manage your expenses',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.SubTitle,
+                        color: AppColors.secondaryText,
                       ),
                     ),
                   ],
@@ -179,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ? CircularProgressIndicator(
                     color: AppColors.BackGround,
                   )
-                      : Text("Login"),
+                      : Text("Log In"),
                 ),
               ),
 
@@ -217,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Text(
                   'Secure & Private',
                   style: TextStyle(
-                    color: AppColors.SubTitle,
+                    color: AppColors.secondaryText,
                     fontSize: 12,
                   ),
                 ),
